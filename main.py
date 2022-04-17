@@ -41,7 +41,7 @@ def add_car():
 
         db.connection.commit()
 
-    return redirect(url_for("index"))
+    return jsonify(data = 'post was posted successfully')
 
 @app.route('/update_car', methods=["PUT"])
 def update_car():
@@ -58,7 +58,7 @@ def update_car():
 
         db.connection.commit()
 
-    return redirect(url_for("index"))
+    return jsonify(data = 'post was updated successfully')
 
 @app.route('/delete_car/<string:id>', methods=["DELETE"])
 def delete_car(id):
