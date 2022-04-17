@@ -19,16 +19,15 @@ app.secret_key = 'secret_key'
 
 #Routes
 @app.route('/', methods=['GET'])
-@cross_origin()
 def index():
     if request.method == 'GET':
         cur = db.connection.cursor()
         cur.execute('SELECT * FROM car')
         data = cur.fetchall() #Get the query in variable data
+
     return jsonify([{'id':car[0],'brand': car[1], 'model': car[2], 'year': car[3]} for car in data])
 
 @app.route('/add_car', methods=['POST'])
-@cross_origin()
 def add_car():
     if request.method == 'POST':
         data = request.get_json()
@@ -42,16 +41,35 @@ def add_car():
 
         db.connection.commit()
 
-        #flash('Car added successfully!')
     return redirect(url_for("index"))
 
-@app.route('/update_car')
+@app.route('/update_car', methods=["PUT"])
 def update_car():
-    return redirect(url_for(index))
+    if request.method == 'PUT':
+        data = request.get_json()
+        id = data["id"]
+        brand = data["brand"]
+        model = data["model"]
+        year = data["year"]
 
-@app.route('/delete_car')
-def delete_car():
-    return redirect(url_for(index))
+        # Get the cursor
+        cur = db.connection.cursor()
+        cur.execute('UPDATE car SET brand=%s, model=%s, year=%s WHERE id=%s', (brand, model, year, id))
+
+        db.connection.commit()
+
+    return redirect(url_for("index"))
+
+@app.route('/delete_car/<string:id>', methods=["DELETE"])
+def delete_car(id):
+    if request.method == 'DELETE':
+        # Get the cursor
+        cur = db.connection.cursor()
+        cur.execute('DELETE FROM car WHERE id=%s', (id,))
+        
+        db.connection.commit()
+    
+    return jsonify(data = 'post was deleted successfully')
 
 # Run the server if the executed file is the main file
 if __name__ == '__main__':
